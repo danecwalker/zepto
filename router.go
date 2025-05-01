@@ -13,6 +13,12 @@ type Router struct {
 	router IRouter
 }
 
+type Group struct {
+	*Router
+	// Prefix is the prefix for the group.
+	Prefix string
+}
+
 func New(r IRouter) *Router {
 	return &Router{
 		router: r,
@@ -23,6 +29,35 @@ func NewDefault() *Router {
 	return &Router{
 		router: NewTrie(),
 	}
+}
+
+// Group creates a new route group with the given prefix.
+func (r *Router) Group(prefix string) *Group {
+	return &Group{
+		Router: r,
+		Prefix: prefix,
+	}
+}
+
+// Group Methods
+func (g *Group) GET(path string, handler HandlerFunc) {
+	path = g.Prefix + path
+	g.Router.GET(path, handler)
+}
+
+func (g *Group) POST(path string, handler HandlerFunc) {
+	path = g.Prefix + path
+	g.Router.POST(path, handler)
+}
+
+func (g *Group) PUT(path string, handler HandlerFunc) {
+	path = g.Prefix + path
+	g.Router.PUT(path, handler)
+}
+
+func (g *Group) DELETE(path string, handler HandlerFunc) {
+	path = g.Prefix + path
+	g.Router.DELETE(path, handler)
 }
 
 // GET registers a handler for GET requests.
