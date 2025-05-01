@@ -36,3 +36,14 @@ func (c *Context) JSON(status int, v interface{}) error {
 
 	return nil
 }
+
+// Text writes a text response.
+func (c *Context) Text(status int, v string) error {
+	c.Response.Header().Set("Content-Type", "text/plain")
+	c.Response.WriteHeader(status)
+	if _, err := c.Response.Write([]byte(v)); err != nil {
+		return err
+	}
+
+	return nil
+}
