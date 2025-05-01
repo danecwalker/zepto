@@ -39,35 +39,24 @@ func (r *Router) Group(prefix string) *Group {
 	}
 }
 
-// CleanPath cleans the path by removing trailing slashes.
-func cleanPath(path string) string {
-	if len(path) == 0 {
-		return "/"
-	}
-	if path[len(path)-1] == '/' {
-		path = path[:len(path)-1]
-	}
-	return path
-}
-
 // Group Methods
 func (g *Group) GET(path string, handler HandlerFunc) {
-	path = cleanPath(g.Prefix + path)
+	path = g.Prefix + path
 	g.Router.GET(path, handler)
 }
 
 func (g *Group) POST(path string, handler HandlerFunc) {
-	path = cleanPath(g.Prefix + path)
+	path = g.Prefix + path
 	g.Router.POST(path, handler)
 }
 
 func (g *Group) PUT(path string, handler HandlerFunc) {
-	path = cleanPath(g.Prefix + path)
+	path = g.Prefix + path
 	g.Router.PUT(path, handler)
 }
 
 func (g *Group) DELETE(path string, handler HandlerFunc) {
-	path = cleanPath(g.Prefix + path)
+	path = g.Prefix + path
 	g.Router.DELETE(path, handler)
 }
 
@@ -92,6 +81,12 @@ func (r *Router) DELETE(path string, handler HandlerFunc) {
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	// redirect to clean path
+	if req.URL.Path != cleanPath(req.URL.Path) {
+		http.Redirect(w, req, cleanPath(req.URL.Path), http.StatusMovedPermanently)
+		return
+	}
+
 	handler, params, ok := r.router.Find(req.Method, req.URL.Path)
 	if !ok {
 		http.NotFound(w, req)

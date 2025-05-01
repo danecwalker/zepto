@@ -2,7 +2,6 @@ package zepto
 
 import (
 	"strings"
-	"sync"
 )
 
 // Param holds one URL parameter key and value.
@@ -28,6 +27,7 @@ func NewTrie() *Trie {
 // Handle registers a handler for method+path. Static routes (no ':')
 // go into a simple map; param routes go into the trie.
 func (t *Trie) Handle(method, path string, handler HandlerFunc) {
+	path = cleanPath(path)
 	// static route: exact match, zero-alloc at lookup
 	if !strings.Contains(path, ":") {
 		if t.static[method] == nil {
@@ -66,14 +66,6 @@ func (t *Trie) Handle(method, path string, handler HandlerFunc) {
 	}
 	// assign handler at leaf
 	n.Handler = handler
-}
-
-// paramPool reuses Param slice buffers to avoid heap allocs.
-var paramPool = sync.Pool{
-	New: func() interface{} {
-		buf := make([]Param, 0, 4)
-		return &buf
-	},
 }
 
 // Find looks up a handler by method+path. Returns handler, params slice, and found.
