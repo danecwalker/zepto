@@ -11,7 +11,7 @@ type Context struct {
 	// Response is the HTTP response.
 	Response http.ResponseWriter
 	// Params are the URL parameters.
-	Params map[string]string
+	params []Param
 	// StatusCode is the HTTP status code.
 	StatusCode int
 	// Body is the request body.
@@ -21,9 +21,21 @@ type Context struct {
 // NewContext creates a new context.
 func NewContext(req *http.Request, w http.ResponseWriter, params []Param) *Context {
 	return &Context{
-		Request:  req,
-		Response: w,
+		Request:    req,
+		Response:   w,
+		params:     params,
+		StatusCode: http.StatusOK,
+		Body:       nil,
 	}
+}
+
+func (c *Context) Param(key string) string {
+	for _, param := range c.params {
+		if param.Key == key {
+			return param.Value
+		}
+	}
+	return ""
 }
 
 // JSON writes a JSON response.
