@@ -39,24 +39,35 @@ func (r *Router) Group(prefix string) *Group {
 	}
 }
 
+// CleanPath cleans the path by removing trailing slashes.
+func cleanPath(path string) string {
+	if len(path) == 0 {
+		return "/"
+	}
+	if path[len(path)-1] == '/' {
+		path = path[:len(path)-1]
+	}
+	return path
+}
+
 // Group Methods
 func (g *Group) GET(path string, handler HandlerFunc) {
-	path = g.Prefix + path
+	path = cleanPath(g.Prefix + path)
 	g.Router.GET(path, handler)
 }
 
 func (g *Group) POST(path string, handler HandlerFunc) {
-	path = g.Prefix + path
+	path = cleanPath(g.Prefix + path)
 	g.Router.POST(path, handler)
 }
 
 func (g *Group) PUT(path string, handler HandlerFunc) {
-	path = g.Prefix + path
+	path = cleanPath(g.Prefix + path)
 	g.Router.PUT(path, handler)
 }
 
 func (g *Group) DELETE(path string, handler HandlerFunc) {
-	path = g.Prefix + path
+	path = cleanPath(g.Prefix + path)
 	g.Router.DELETE(path, handler)
 }
 
