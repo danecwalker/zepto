@@ -11,7 +11,7 @@ type Context struct {
 	// Response is the HTTP response.
 	Response http.ResponseWriter
 	// Params are the URL parameters.
-	Params map[string]string
+	Params []Param
 	// StatusCode is the HTTP status code.
 	StatusCode int
 	// Body is the request body.
@@ -23,6 +23,7 @@ func NewContext(req *http.Request, w http.ResponseWriter, params []Param) *Conte
 	return &Context{
 		Request:  req,
 		Response: w,
+		Params:   params,
 	}
 }
 
@@ -46,4 +47,34 @@ func (c *Context) Text(status int, v string) error {
 	}
 
 	return nil
+}
+
+func (c *Context) Bind(v interface{}) error {
+	if err := json.NewDecoder(c.Request.Body).Decode(v); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Context) FormValue(key string) string {
+	return c.Request.FormValue(key)
+}
+
+func (c *Context) PostValue(key string) string {
+	return c.Request.PostFormValue(key)
+}
+
+func (c *Context) Query(key string) string {
+	return c.Request.URL.Query().Get(key)
+}
+
+func (c *Context) Param(key string) string {
+	for _, param := range c.Params {
+		if param.Key == key {
+			return param.Value
+		}
+	}
+
+	return ""
 }
